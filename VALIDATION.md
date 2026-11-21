@@ -60,7 +60,8 @@ Java、Vue 片段验证使用临时目录，检查结束已自动清理；未向
 - 在仓库根目录运行 `python -X utf8 -m unittest discover -s tests -v`，7 项通过：源码与搬迁后的规范快照逐文件一致，摘要与快照标识匹配；本地链接可解析；已有输出不覆盖；缺失来源不生成输出；拒绝写入规范资料目录；相同输入生成相同 ZIP；无 Git 元数据的 GitHub 根目录安装布局可以生成完整快照。
 - Markdown 检查覆盖当前 43 份文档的 UTF-8、围栏、表格列数与本地链接；102 条规则定义无重复，引用及编号区间可解析，每条规则至少关联一份阶段清单。
 - 使用本机 Codex 提供的 `skill-creator/scripts/quick_validate.py` 对根目录 skill 校验通过；`git diff --check` 通过。临时打包及搬迁数据由测试在临时目录创建并清理。
-- 本段验证时，GitHub 安装布局检查为本地模拟，尚未证明远端下载或安装成功。未在实际业务项目执行完整智能体接入／重复接入／升级，未完成非作者评审，也未重新执行 Java、Vue、OpenAPI、Compose 或业务运行测试；这些范围不能记为通过。
+- 远端验证：将功能提交 `29c4fce` 推送到 `guoshiqiufeng/easy-standard` 的 `codex/java-vue-standards-skill` 分支后，使用 Codex 自带安装器，按 README 中的 GitHub 仓库、ref、根路径 `.`、名称和 download 方式实际安装到本仓库 `dist/github-install-check/`（未改全局安装）。安装成功；安装后的 skill 格式校验通过，其打包脚本独立生成 ZIP，安装副本内再次执行 7 项检查全部通过。Markdown 实际核验 43 份、72 个表格、204 处本地链接。
+- 未在实际业务项目执行完整智能体接入／重复接入／升级，未完成非作者评审，也未重新执行 Java、Vue、OpenAPI、Compose 或业务运行测试；这些范围不能记为通过。远端验证仅证明下载、文件布局、打包与已列检查可执行，不代表业务规范采纳完成。
 
 ## 接入验收
 
