@@ -1,0 +1,419 @@
+openapi: 3.1.0
+info:
+  title: 订单规范贯穿示例
+  version: 1.0.0
+  description: 文档示例，尚无运行中的后端；仅包含创建、本人列表和详情。
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: orders
+    description: 订单创建与当前用户订单查询
+paths:
+  /orders:
+    post:
+      tags: [orders]
+      operationId: createOrder
+      summary: 创建订单
+      description: |
+        需要 order:create 权限。用户身份取自可信认证上下文。
+        同用户、操作、幂等键的同载荷在完成后 24 小时内重放原业务结果，返回 201，
+        traceId 使用本次请求标识；同键不同载荷返回 409。
+        处理中的请求返回 409 COMMON.REQUEST_IN_PROGRESS，重试须复用原键和载荷。
+        指纹使用规范化 productId 和 quantity；不接受客户端价格。
+        键过期不保证去重，客户端需先核对订单；重放仍验证当前权限。
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+            example:
+              productId: '9007199254740995'
+              quantity: 2
+      responses:
+        '201':
+          description: 订单已创建，或重放原创建结果
+          headers:
+            Location:
+              description: 所创建订单的相对地址
+              schema:
+                type: string
+              example: /api/v1/orders/9007199254740993
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+              example:
+                code: '0'
+                message: success
+                data:
+                  id: '9007199254740993'
+                  productId: '9007199254740995'
+                  quantity: 2
+                  unitPrice: '12.50'
+                  totalAmount: '25.00'
+                  currency: CNY
+                  status: CREATED
+                  createdAt: '2026-11-21T02:00:00Z'
+                traceId: 8b83ecf2d7a54ea4a9bac3c4d621fb39
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: 商品不存在或对当前用户不可见
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: CATALOG.PRODUCT_NOT_FOUND
+                message: 商品不存在
+                data: null
+                traceId: 8b83ecf2d7a54ea4a9bac3c4d621fb39
+        '409':
+          description: 幂等键载荷冲突、请求仍在处理或商品不可售
+          headers:
+            Retry-After:
+              description: 仅请求仍在处理时可提供等待秒数；其他冲突不自动重试
+              schema:
+                type: integer
+                minimum: 1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                conflict:
+                  value:
+                    code: COMMON.IDEMPOTENCY_CONFLICT
+                    message: 该幂等键已用于不同请求
+                    data: null
+                    traceId: 8b83ecf2d7a54ea4a9bac3c4d621fb39
+                processing:
+                  value:
+                    code: COMMON.REQUEST_IN_PROGRESS
+                    message: 请求正在处理，请稍后使用原幂等键重试
+                    data: null
+                    traceId: 8b83ecf2d7a54ea4a9bac3c4d621fb39
+                unavailable:
+                  value:
+                    code: CATALOG.PRODUCT_UNAVAILABLE
+                    message: 商品当前不可售
+                    data: null
+                    traceId: 8b83ecf2d7a54ea4a9bac3c4d621fb39
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+    get:
+      tags: [orders]
+      operationId: listOrders
+      summary: 查询当前用户订单
+      description: 需要 order:read 权限。仅返回本人订单，固定按 createdAt DESC、id DESC 排序。
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: 当前用户订单分页；空页 items 为空数组
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPageResponse'
+              example:
+                code: '0'
+                message: success
+                data:
+                  items: []
+                  total: 0
+                  page: 1
+                  pageSize: 20
+                traceId: 8b83ecf2d7a54ea4a9bac3c4d621fb39
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+  /orders/{orderId}:
+    get:
+      tags: [orders]
+      operationId: getOrder
+      summary: 查询本人订单详情
+      description: 需要 order:read 权限；不存在和不属于当前用户均返回相同 404。
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/BusinessId'
+      responses:
+        '200':
+          description: 订单详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: 订单不存在或对当前用户不可见
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: ORDER.NOT_FOUND
+                message: 订单不存在
+                data: null
+                traceId: 8b83ecf2d7a54ea4a9bac3c4d621fb39
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 使用项目选定并验证的 Bearer 凭证，不指定令牌内部格式。
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: 一次业务意图生成一次，未知结果的重试保持不变；完成后保留 24 小时。
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 128
+        pattern: '^[A-Za-z0-9_-]{8,128}$'
+      example: order-create-demo-001
+  schemas:
+    BusinessId:
+      type: string
+      description: 本示例采用十进制数字组成的字符串 ID，前端不得转为 Number。
+      pattern: '^[1-9][0-9]{0,19}$'
+    Money:
+      type: string
+      description: 本示例 CNY 非负两位小数字符串；持久化精度由实际数据库登记。
+      pattern: '^(0|[1-9][0-9]*)\.[0-9]{2}$'
+    CreateOrderRequest:
+      type: object
+      additionalProperties: false
+      required: [productId, quantity]
+      properties:
+        productId:
+          $ref: '#/components/schemas/BusinessId'
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+    Order:
+      type: object
+      required: [id, productId, quantity, unitPrice, totalAmount, currency, status, createdAt]
+      properties:
+        id:
+          $ref: '#/components/schemas/BusinessId'
+        productId:
+          $ref: '#/components/schemas/BusinessId'
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        unitPrice:
+          $ref: '#/components/schemas/Money'
+        totalAmount:
+          $ref: '#/components/schemas/Money'
+        currency:
+          type: string
+          const: CNY
+        status:
+          type: string
+          const: CREATED
+        createdAt:
+          type: string
+          format: date-time
+          description: 响应统一 UTC，使用 Z 后缀。
+          pattern: 'Z$'
+    OrderResponse:
+      type: object
+      required: [code, message, data, traceId]
+      properties:
+        code:
+          type: string
+          const: '0'
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Order'
+        traceId:
+          type: string
+          minLength: 1
+    OrderPageResponse:
+      type: object
+      required: [code, message, data, traceId]
+      properties:
+        code:
+          type: string
+          const: '0'
+        message:
+          type: string
+        data:
+          type: object
+          required: [items, total, page, pageSize]
+          properties:
+            items:
+              type: array
+              maxItems: 100
+              items:
+                $ref: '#/components/schemas/Order'
+            total:
+              type: integer
+              minimum: 0
+              maximum: 9007199254740991
+            page:
+              type: integer
+              minimum: 1
+              maximum: 1000
+            pageSize:
+              type: integer
+              minimum: 1
+              maximum: 100
+        traceId:
+          type: string
+          minLength: 1
+    ErrorResponse:
+      type: object
+      required: [code, message, data, traceId]
+      properties:
+        code:
+          type: string
+          pattern: '^[A-Z][A-Z0-9_]*\.[A-Z][A-Z0-9_]*$'
+        message:
+          type: string
+        data:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [errors]
+              properties:
+                errors:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [field, reason]
+                    properties:
+                      field:
+                        type: string
+                      reason:
+                        type: string
+        traceId:
+          type: string
+          minLength: 1
+  responses:
+    BadRequest:
+      description: 请求格式、字段范围或必需头不符合契约，COMMON.VALIDATION_FAILED
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: COMMON.VALIDATION_FAILED
+            message: 请求参数不符合要求
+            data:
+              errors:
+                - field: quantity
+                  reason: 必须为 1 至 100 的整数
+            traceId: 8b83ecf2d7a54ea4a9bac3c4d621fb39
+    Unauthorized:
+      description: 未认证或凭证无效，COMMON.UNAUTHENTICATED
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          example: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: 缺少操作权限，COMMON.FORBIDDEN
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    PayloadTooLarge:
+      description: 请求超过项目登记的大小限制，COMMON.PAYLOAD_TOO_LARGE
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnsupportedMediaType:
+      description: 请求不使用支持的 JSON 媒体类型，COMMON.UNSUPPORTED_MEDIA_TYPE
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    TooManyRequests:
+      description: 触发项目限流，COMMON.RATE_LIMITED
+      headers:
+        Retry-After:
+          description: 建议等待秒数
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: 内部异常，COMMON.INTERNAL_ERROR；不返回堆栈或内部数据
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unavailable:
+      description: 依赖或服务暂不可用，COMMON.SERVICE_UNAVAILABLE；重试前保留原业务意图
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
