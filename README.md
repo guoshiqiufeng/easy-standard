@@ -23,7 +23,7 @@
 
 ### 通过 GitHub 链接安装
 
-GitHub 仓库：[guoshiqiufeng/easy-standard](https://github.com/guoshiqiufeng/easy-standard)。本次功能提交在 `codex/java-vue-standards-skill` 分支；合并前使用该分支安装，合并后可选择 `main` 或经过评审的固定提交。
+GitHub 仓库：[guoshiqiufeng/easy-standard](https://github.com/guoshiqiufeng/easy-standard)。从 `main` 分支安装；需要固定安装内容时，可将下方分支或 `--ref main` 替换为经过评审的完整提交 SHA。
 
 在 Codex 中直接发送下面这段话：
 
@@ -31,7 +31,7 @@ GitHub 仓库：[guoshiqiufeng/easy-standard](https://github.com/guoshiqiufeng/e
 请使用 skill-installer 从 GitHub 安装这个 skill：
 https://github.com/guoshiqiufeng/easy-standard
 
-分支：codex/java-vue-standards-skill
+分支：main
 skill 路径：仓库根目录（.）
 安装名称：java-vue-standards
 请安装完整目录，保留 docs、templates、checklists、examples 和 scripts。
@@ -40,13 +40,13 @@ skill 路径：仓库根目录（.）
 也可以调用 Codex 自带的安装脚本。在默认安装目录下，PowerShell 示例为：
 
 ```powershell
-python "$env:USERPROFILE/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" --repo guoshiqiufeng/easy-standard --ref codex/java-vue-standards-skill --path . --name java-vue-standards --method download
+python "$env:USERPROFILE/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" --repo guoshiqiufeng/easy-standard --ref main --path . --name java-vue-standards --method download
 ```
 
 macOS／Linux 示例为：
 
 ```sh
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py --repo guoshiqiufeng/easy-standard --ref codex/java-vue-standards-skill --path . --name java-vue-standards --method download
+python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py --repo guoshiqiufeng/easy-standard --ref main --path . --name java-vue-standards --method download
 ```
 
 命令中的脚本路径以实际 Codex 安装位置为准；设置了 `CODEX_HOME` 时使用该目录下的 `skills/.system/skill-installer/scripts/install-skill-from-github.py`。安装器通常放入 `$CODEX_HOME/skills/java-vue-standards`，未设置时为 `~/.codex/skills/java-vue-standards`；已有同名目录时先比较并保留定制，不强制覆盖。私有仓库需要有读取权限。使用 `--ref` 指定完整提交 SHA 可固定安装内容；分支名可能随提交变化。

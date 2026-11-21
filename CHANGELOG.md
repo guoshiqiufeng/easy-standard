@@ -2,6 +2,7 @@
 
 ## 未发布
 
+- 功能合入 main 后，将 README 的 GitHub 安装提示及 PowerShell、macOS／Linux 命令统一改为 `main`，保留完整提交 SHA 固定安装方式。
 - 新增业务项目版 `templates/16-project-agents.md` 和根目录 `SKILL.md`，支持接入、指定范围检查及显式升级，保留既有项目约定并记录冲突与未知项。
 - README 增加通过真实 GitHub 仓库链接安装、调用及人工接入说明；新增便携快照打包工具、来源摘要记录和验证用例。
 - 新增 `AGENTS.md`，将现有规范整理为智能体的查阅路径、执行约束与验证要求，并在首页增加入口。
