@@ -63,6 +63,13 @@ Java、Vue 片段验证使用临时目录，检查结束已自动清理；未向
 - 远端验证：将功能提交 `29c4fce` 推送到 `guoshiqiufeng/easy-standard` 的 `codex/java-vue-standards-skill` 分支后，使用 Codex 自带安装器，按 README 中的 GitHub 仓库、ref、根路径 `.`、名称和 download 方式实际安装到本仓库 `dist/github-install-check/`（未改全局安装）。安装成功；安装后的 skill 格式校验通过，其打包脚本独立生成 ZIP，安装副本内再次执行 7 项检查全部通过。Markdown 实际核验 43 份、72 个表格、204 处本地链接。
 - 未在实际业务项目执行完整智能体接入／重复接入／升级，未完成非作者评审，也未重新执行 Java、Vue、OpenAPI、Compose 或业务运行测试；这些范围不能记为通过。远端验证仅证明下载、文件布局、打包与已列检查可执行，不代表业务规范采纳完成。
 
+## main 安装说明更新核验（2026-11-21）
+
+- 同步并确认 GitHub main 已包含合并提交 `a114d4b`。本次仅更新 README 的安装来源说明和两种系统的安装命令，并同步变更、核验记录；规范、skill 逻辑和业务示例未修改。
+- 使用本机 Codex 安装器，按 README 的仓库、`--ref main --path . --name java-vue-standards --method download` 参数实际下载到 `dist/github-main-install-check/`，安装成功；安装后的 skill 通过 `quick_validate.py` 校验。下载后远端 main 仍为 `a114d4b9f5ebd68e95188fb69382f359f82f6a59`，未改动全局 skill 安装。
+- 在仓库根目录执行 `python -X utf8 -m unittest discover -s tests -v`，7 项通过；43 份 Markdown、72 个表格、204 处本地链接及 102 条规则引用检查通过。`git diff --check` 通过，README 不再引用旧功能分支。
+- 本次未在实际业务项目执行接入、升级或运行测试，也未在 macOS／Linux 执行命令；两种系统示例仅将相同安装参数切换到 main。新文档变更尚待独立评审，先前功能分支的核验记录保留为历史证据。
+
 ## 接入验收
 
 先完成[技术基线](templates/01-project-baseline.md)，确定工具与版本、强制检查入口、采用的推荐阈值、性能与恢复目标；随后按[设计](checklists/01-design.md)、[合并](checklists/02-merge.md)、[测试](checklists/03-test-acceptance.md)、[发布](checklists/04-release.md)和[运维](checklists/05-operations.md)清单执行。任何实际执行记录应关联真实提交、制品、环境与责任人。
