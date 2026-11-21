@@ -1,0 +1,4 @@
+interface:
+  display_name: "Java＋Vue 3 规范接入与检查"
+  short_description: "接入团队规范，生成项目指导和基线草稿，按采用版本检查指定变更"
+  default_prompt: "使用 $java-vue-standards 将团队规范接入当前项目，保留已有约定，核实命令并列出差距与未确认项。"

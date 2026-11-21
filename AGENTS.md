@@ -8,6 +8,8 @@
 - 默认技术方向为 Java 后端、Vue 3 前端、模块化单体和 Linux＋Docker 部署。
 - JDK、后端框架、数据库、构建工具、JavaScript／TypeScript、路由库、状态库和 UI 库由业务项目登记；不得将某个框架、产品或版本写成现有规范的既定选型。
 - `docs/` 是规范正文；`templates/` 是供业务项目复制填写的通用模板；`checklists/` 是阶段验收入口；`examples/order/` 和 `examples/docker/` 是说明性示例。
+- [SKILL.md](SKILL.md) 是可从 GitHub 仓库根目录安装的规范接入与检查入口；[业务项目模板](templates/16-project-agents.md)用于生成其他项目的 AGENTS.md。安装与使用说明集中在 [README.md](README.md)。
+- `scripts/package_skill.py` 生成携带规范快照的 skill ZIP；`tests/` 验证打包完整性与文档引用。规范正文只维护一份，`dist/` 为不提交的生成物。
 - [CHANGELOG.md](CHANGELOG.md) 记录变更；[VALIDATION.md](VALIDATION.md) 记录实际核验范围与未验证项。
 - 默认使用中文编写说明，沿用现有术语、规则编号和文件组织，文件保存为 UTF-8。
 

@@ -8,13 +8,17 @@
 | --- | --- | --- |
 | 规范正文 | 11 章 | [导航](README.md) |
 | 官方参考与维护说明 | 1 份 | [参考资料](docs/references.md) |
-| 工作模板 | 15 份 | [技术基线](templates/01-project-baseline.md)至[例外单](templates/15-exception.md) |
+| 工作模板 | 16 份 | [技术基线](templates/01-project-baseline.md)至[业务项目 AGENTS.md](templates/16-project-agents.md) |
 | 阶段检查清单 | 5 份 | [设计](checklists/01-design.md)至[运维](checklists/05-operations.md) |
 | 订单贯穿示例 | 4 份说明＋1 份 OpenAPI | [订单示例](examples/order/README.md) |
 | Docker 示例 | 说明、Compose 配置、变量示例 | [Docker 示例](examples/docker/README.md) |
 | 根目录文档 | 导航、智能体协作指南、变更记录、本核验记录 | [首页](README.md)、[AGENTS.md](AGENTS.md) |
+| 规范接入 skill | 入口、展示配置 | [SKILL.md](SKILL.md)、[配置](agents/openai.yaml) |
+| 分发与验证工具 | 打包脚本、7 项自动检查 | [脚本](scripts/package_skill.py)、[检查](tests/test_distribution.py) |
 
 初始交付合计 40 份 Markdown、2 份 YAML 和 1 份环境变量示例，共 43 个文件；新增 `AGENTS.md` 后为 41 份 Markdown、共 44 个文件。强制规则仍为 102 条。
+
+本次增加业务项目模板、skill 与分发工具后，交付为 43 份 Markdown、3 份 YAML、2 份 Python、1 份环境变量示例和 `.gitignore`，共 50 个文件；不含生成物和 Git 元数据。
 
 ## 初始交付已执行的核验
 
@@ -48,6 +52,16 @@ Java、Vue 片段验证使用临时目录，检查结束已自动清理；未向
 - 对当前 41 份 Markdown 执行静态检查：UTF-8 可读取，代码围栏闭合，69 个表格列数一致，187 处本地链接目标存在。
 - 102 条规则定义无重复；规则引用及编号区间均可解析，每条强制规则仍有关联阶段检查清单。
 - 本次未重新执行 Java、Vue、OpenAPI、Compose 或业务运行验证；上方相关结果为初始交付记录，不作为本次新增指南的运行验证结论。
+
+## 业务项目模板与 skill 核验（2026-11-21）
+
+- 变更范围：业务项目 AGENTS.md 模板、根目录 skill 及展示配置、GitHub 安装与使用说明、快照打包脚本、分发测试、导航与记录；规范规则及业务示例内容未修改。
+- 环境：Windows、Python 3.10.9、PyYAML 6.0、Git 2.17.1.windows.2。Git 分支查询使用兼容入口，未沿用不支持的 `git branch --show-current` 结果。
+- 在仓库根目录运行 `python -X utf8 -m unittest discover -s tests -v`，7 项通过：源码与搬迁后的规范快照逐文件一致，摘要与快照标识匹配；本地链接可解析；已有输出不覆盖；缺失来源不生成输出；拒绝写入规范资料目录；相同输入生成相同 ZIP；无 Git 元数据的 GitHub 根目录安装布局可以生成完整快照。
+- Markdown 检查覆盖当前 43 份文档的 UTF-8、围栏、表格列数与本地链接；102 条规则定义无重复，引用及编号区间可解析，每条规则至少关联一份阶段清单。
+- 使用本机 Codex 提供的 `skill-creator/scripts/quick_validate.py` 对根目录 skill 校验通过；`git diff --check` 通过。临时打包及搬迁数据由测试在临时目录创建并清理。
+- 远端验证：将功能提交 `29c4fce` 推送到 `guoshiqiufeng/easy-standard` 的 `codex/java-vue-standards-skill` 分支后，使用 Codex 自带安装器，按 README 中的 GitHub 仓库、ref、根路径 `.`、名称和 download 方式实际安装到本仓库 `dist/github-install-check/`（未改全局安装）。安装成功；安装后的 skill 格式校验通过，其打包脚本独立生成 ZIP，安装副本内再次执行 7 项检查全部通过。Markdown 实际核验 43 份、72 个表格、204 处本地链接。
+- 未在实际业务项目执行完整智能体接入／重复接入／升级，未完成非作者评审，也未重新执行 Java、Vue、OpenAPI、Compose 或业务运行测试；这些范围不能记为通过。远端验证仅证明下载、文件布局、打包与已列检查可执行，不代表业务规范采纳完成。
 
 ## 接入验收
 

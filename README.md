@@ -17,6 +17,87 @@
 
 将模板复制到业务项目文档目录后填写；本仓库保留通用模板。模板中“待填写”是提示，完成的项目文档不得保留无解释的空项；不适用项需说明理由。
 
+## 在其他项目中安装与使用
+
+**推荐通过 GitHub 链接安装 skill，再由 skill 为业务项目生成适配后的 AGENTS.md。** 本仓库根目录的 AGENTS.md 用于维护规范仓库，不能原样复制到业务项目；业务项目使用[专用模板](templates/16-project-agents.md)。[SKILL.md](SKILL.md) 位于仓库根目录，安装时需要同时取得规范、模板、清单和示例。
+
+### 通过 GitHub 链接安装
+
+GitHub 仓库：[guoshiqiufeng/easy-standard](https://github.com/guoshiqiufeng/easy-standard)。本次功能提交在 `codex/java-vue-standards-skill` 分支；合并前使用该分支安装，合并后可选择 `main` 或经过评审的固定提交。
+
+在 Codex 中直接发送下面这段话：
+
+```text
+请使用 skill-installer 从 GitHub 安装这个 skill：
+https://github.com/guoshiqiufeng/easy-standard
+
+分支：codex/java-vue-standards-skill
+skill 路径：仓库根目录（.）
+安装名称：java-vue-standards
+请安装完整目录，保留 docs、templates、checklists、examples 和 scripts。
+```
+
+也可以调用 Codex 自带的安装脚本。在默认安装目录下，PowerShell 示例为：
+
+```powershell
+python "$env:USERPROFILE/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py" --repo guoshiqiufeng/easy-standard --ref codex/java-vue-standards-skill --path . --name java-vue-standards --method download
+```
+
+macOS／Linux 示例为：
+
+```sh
+python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py --repo guoshiqiufeng/easy-standard --ref codex/java-vue-standards-skill --path . --name java-vue-standards --method download
+```
+
+命令中的脚本路径以实际 Codex 安装位置为准；设置了 `CODEX_HOME` 时使用该目录下的 `skills/.system/skill-installer/scripts/install-skill-from-github.py`。安装器通常放入 `$CODEX_HOME/skills/java-vue-standards`，未设置时为 `~/.codex/skills/java-vue-standards`；已有同名目录时先比较并保留定制，不强制覆盖。私有仓库需要有读取权限。使用 `--ref` 指定完整提交 SHA 可固定安装内容；分支名可能随提交变化。
+
+安装后在下一轮目标项目会话中确认能发现 `$java-vue-standards`；未发现时重新启动会话。安装不会自动改写业务项目，首次使用仍需发起接入任务。
+
+### 在业务项目中使用
+
+打开目标业务项目，首次接入时输入：
+
+```text
+使用 $java-vue-standards 将团队规范接入当前项目。
+保留已有 AGENTS.md 和项目约定，核实技术栈、目录与执行命令。
+生成或更新项目指导、技术基线草稿和接入记录，列出冲突与未确认项。
+```
+
+默认建议形成下面的结构，已有项目沿用原文档路径：
+
+```text
+业务项目/
+  AGENTS.md                       项目定位、实际目录、命令与日常约束
+  docs/project-baseline.md         技术与质量基线
+  docs/standards-adoption.md       来源、差距、冲突、未确认项和验证记录
+  standards/team/                  固定版本规范副本及 SNAPSHOT.json
+```
+
+skill 按真实项目适配[业务项目版 AGENTS.md 模板](templates/16-project-agents.md)，与现有约定按主题合并，不重复追加。规范副本保持原目录结构，项目文档引用项目内路径，不依赖维护者电脑的绝对路径。日常开发由项目 AGENTS.md 提供持续指导，无需每次重新接入。
+
+只检查当前改动时输入：
+
+```text
+使用 $java-vue-standards，按项目已登记的规范版本检查本次未提交改动。
+给出规则编号、证据、影响、未验证项和整改建议；本次只检查。
+```
+
+升级规范时明确指定目标版本或快照，先比较兼容影响再更新基线。安装新版 skill 不等于业务项目已经同意升级。未知信息写明原因、影响和负责角色，接入状态保持草稿；生成文档与静态检查不能代替负责人采纳、独立评审或业务验收。
+
+### 快照与人工接入
+
+安装目录或本仓库中的[打包脚本](scripts/package_skill.py)用于生成可移动的规范快照，仅依赖 Python 3.10 或更高版本。在该目录执行：
+
+```sh
+python scripts/package_skill.py --output dist/java-vue-standards.zip
+```
+
+将 ZIP 内的 `java-vue-standards/references/standard/` 复制到业务项目的 `standards/team/`。ZIP 也可用于离线分发整个 skill。脚本不会覆盖已有输出，可另选文件名；`dist/` 不提交 Git。通用模板仍保持通用，填写后的项目文档另外存放。
+
+`SNAPSHOT.json` 登记规范版本、可获得的源提交、未提交状态、逐文件 SHA-256 与快照标识。GitHub 下载目录未保留 Git 信息时，提交和未提交状态为 `null`，接入记录补充实际安装来源与已知 ref，不能猜测提交。摘要用于核对内容完整性，不代表已评审或来源签名。
+
+不使用 skill 时，也可按上述方式准备规范副本，手工适配模板并填写[技术基线](templates/01-project-baseline.md)。规则仍按强制、推荐、可选区分，已有约定与适用强制项冲突时按 `GOV-004` 记录和处理，不默默覆盖。
+
 ## 规范导航
 
 | 文档 | 内容 | 首要读者 |
